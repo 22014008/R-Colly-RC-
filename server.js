@@ -34,7 +34,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Database initialization
-const db = new sqlite3.Database('./database/store.db');
+const dbPath = path.resolve(__dirname, 'database', 'store.db');
+const db = new sqlite3.Database(dbPath);
+
 
 // Initialize database tables
 db.serialize(() => {
