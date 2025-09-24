@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R Colly(RC) Fashion E-commerce Store</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h2>R Colly(RC)</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="shop.html" class="nav-link">Shop</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+                <li><a href="cart.html" class="nav-link">Cart (<span id="cart-count">0</span>)</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li><a href="login.html" class="nav-link" id="auth-link">Login</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome to R Colly(RC) – Style Redefined</h1>
+            <p>Where streetwear meets culture</p>
+            <a href="shop.html" class="cta-btn">Shop Now</a>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="featured-products">
+        <div class="container">
+            <h2>Featured Products</h2>
+            <div class="products-grid" id="featured-products">
+                <!-- Products will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="categories">
+        <div class="container">
+            <h2>Shop by Category</h2>
+            <div class="categories-grid">
+                <div class="category-card">
+                    <img src="images/cap.jpg" alt="Caps">
+                    <h3>Caps</h3>
+                    <a href="shop.html?category=caps">Shop Caps</a>
+                </div>
+                <div class="category-card">
+                    <img src="images/hood.jpg" alt="Hoodies">
+                    <h3>Hoodies</h3>
+                    <a href="shop.html?category=hoodies">Shop Hoodies</a>
+                </div>
+                <div class="category-card">
+                    <img src="images/pants1.jpg" alt="Pants">
+                    <h3>Pants</h3>
+                    <a href="shop.html?category=pants">Shop Pants</a>
+                </div>
+                <div class="category-card">
+                    <img src="images/tshirt1.jpg" alt="T-Shirts">
+                    <h3>T-Shirts</h3>
+                    <a href="shop.html?category=tshirts">Shop T-Shirts</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Track Order Section -->
+    <section class="track-order">
+        <div class="container">
+            <h3>Track Your Order</h3>
+            <p>If you've placed an order, you can check its status here:</p>
+            <a class="track-btn" href="https://wa.me/+27793757047?text=Hi%20I'd%20like%20to%20track%20my%20order" target="_blank">📦 Track via WhatsApp</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p>Email: rcollyfashion@gmail.com</p>
+                    <p>Phone: +27793757047</p>
+                    <p>Instagram: @rcollyfashion</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Visit Us</h3>
+                    <p>R Colly(RC) Fashion Clothes Store</p>
+                    <p>Plaza Taxi rank St, Thohoyandou, 0950</p>
+                    <p>Limpopo, South Africa</p>
+                    <p>Open: Mon–Sat, 9am–6pm</p>
+                    <p><a href="https://www.google.com/maps?q=Plaza+Taxi+rank+St,+Thohoyandou" target="_blank">📍 View on Google Maps</a></p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="shop.html">Shop</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="admin/index.html">Admin</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/cart.js"></script>
+</body>
+</html>

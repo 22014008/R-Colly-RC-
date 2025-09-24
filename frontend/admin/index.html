@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - R Colly(RC) Fashion</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+    <!-- Admin Navigation -->
+    <nav class="admin-nav">
+        <div class="admin-nav-container">
+            <div class="admin-logo">
+                <h2>R Colly(RC) Admin</h2>
+            </div>
+            <div class="admin-user-info">
+                <span id="admin-username">Admin</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+        <ul class="admin-menu">
+            <li><a href="#dashboard" class="menu-link active" data-section="dashboard">📊 Dashboard</a></li>
+            <li><a href="#products" class="menu-link" data-section="products">📦 Products</a></li>
+            <li><a href="#orders" class="menu-link" data-section="orders">🛍️ Orders</a></li>
+            <li><a href="#users" class="menu-link" data-section="users">👥 Users</a></li>
+            <li><a href="../index.html" class="menu-link">🏠 Visit Store</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Admin Content -->
+    <main class="admin-main">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="admin-section active">
+            <div class="section-header">
+                <h1>Dashboard</h1>
+                <p>Welcome to R Colly(RC) Fashion Admin Panel</p>
+            </div>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <h3>Total Sales</h3>
+                        <p class="stat-value" id="total-sales">R0.00</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-info">
+                        <h3>Total Orders</h3>
+                        <p class="stat-value" id="total-orders">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-info">
+                        <h3>Low Stock Items</h3>
+                        <p class="stat-value" id="low-stock-count">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h3>Total Users</h3>
+                        <p class="stat-value" id="total-users">0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-content">
+                <div class="dashboard-grid">
+                    <div class="dashboard-section">
+                        <h3>Recent Orders</h3>
+                        <div class="recent-orders-list" id="recent-orders-list">
+                            <!-- Recent orders will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-section">
+                        <h3>Low Stock Products (< 10 items)</h3>
+                        <div class="low-stock-list" id="low-stock-list">
+                            <!-- Low stock items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section id="products" class="admin-section">
+            <div class="section-header">
+                <h1>Product Management</h1>
+                <button class="btn btn-primary" onclick="showAddProductModal()">Add New Product</button>
+            </div>
+            
+            <div class="products-table-container">
+                <table class="admin-table" id="products-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body">
+                        <!-- Products will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Orders Section -->
+        <section id="orders" class="admin-section">
+            <div class="section-header">
+                <h1>Order Management</h1>
+                <div class="order-filters">
+                    <select id="order-status-filter">
+                        <option value="">All Orders</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="pending">Pending</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="orders-table-container">
+                <table class="admin-table" id="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body">
+                        <!-- Orders will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <!-- Users Section -->
+        <section id="users" class="admin-section">
+            <div class="section-header">
+                <h1>User Management</h1>
+                <p>Manage registered customers and their order history</p>
+            </div>
+            
+            <div class="users-table-container">
+                <table class="admin-table" id="users-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Registration Date</th>
+                            <th>Total Orders</th>
+                            <th>Total Spent</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <!-- Users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddProductModal()">&times;</span>
+            <h2 id="product-modal-title">Add New Product</h2>
+            <form id="add-product-form" enctype="multipart/form-data">
+                <input type="hidden" id="edit-product-id" name="productId">
+                
+                <div class="form-group">
+                    <label for="product-name">Product Name</label>
+                    <input type="text" id="product-name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-description">Description</label>
+                    <textarea id="product-description" name="description" rows="4"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-price">Price (R)</label>
+                        <input type="number" id="product-price" name="price" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product-category">Category</label>
+                        <select id="product-category" name="categoryId" required>
+                            <option value="">Select Category</option>
+                            <option value="1">Caps</option>
+                            <option value="2">Hoodies</option>
+                            <option value="3">Pants</option>
+                            <option value="4">T-Shirts</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-stock">Stock Quantity</label>
+                        <input type="number" id="product-stock" name="stockQuantity" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product-sizes">Available Sizes (comma-separated)</label>
+                        <input type="text" id="product-sizes" name="sizes" placeholder="S,M,L,XL">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-image">Product Image</label>
+                    <input type="file" id="product-image" name="image" accept="image/*">
+                    <small>Leave empty to keep current image when editing</small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddProductModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="product-submit-btn">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeOrderDetailsModal()">&times;</span>
+            <h2>Order Details</h2>
+            <div id="order-details-content">
+                <!-- Order details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
