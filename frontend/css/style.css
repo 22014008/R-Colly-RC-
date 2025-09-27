@@ -1106,10 +1106,41 @@ footer {
         transition: 0.3s;
         box-shadow: 0 10px 27px rgba(0,0,0,0.05);
         padding: 2rem 0;
+        z-index: 1000;
     }
     
     .nav-menu.active {
         left: 0;
+    }
+    
+    .nav-menu li {
+        margin: 0.5rem 0;
+    }
+    
+    .nav-link {
+        display: block;
+        padding: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    /* User menu adjustments for mobile */
+    .user-menu {
+        position: fixed;
+        top: 70px;
+        right: 1rem;
+        left: auto;
+        width: 200px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        z-index: 1003;
+    }
+    
+    .user-menu a {
+        padding: 1rem;
+        font-size: 1rem;
+        text-align: left;
     }
     
     .hero h1 {
@@ -1118,12 +1149,14 @@ footer {
     
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
     }
     
     .cart-content,
     .checkout-content,
     .contact-content {
         grid-template-columns: 1fr;
+        gap: 2rem;
     }
     
     .categories-grid {
@@ -1138,10 +1171,73 @@ footer {
         justify-content: flex-start;
         overflow-x: auto;
         padding-bottom: 1rem;
+        gap: 0.5rem;
     }
     
     .filter-btn {
         white-space: nowrap;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    /* Cart improvements for mobile */
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .cart-item-controls {
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    /* Form improvements for mobile */
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Button improvements for mobile */
+    .btn {
+        padding: 0.8rem 1.2rem;
+        font-size: 1rem;
+        min-height: 44px; /* Touch target size */
+    }
+    
+    .cta-btn {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        min-height: 48px;
+    }
+    
+    /* Modal improvements for mobile */
+    .modal-content {
+        width: 95%;
+        margin: 2% auto;
+        padding: 1rem;
+        max-height: 95vh;
+        overflow-y: auto;
+    }
+    
+    /* Product card improvements */
+    .product-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .product-actions .btn {
+        width: 100%;
+        text-align: center;
     }
 }
 
@@ -1158,23 +1254,94 @@ footer {
         font-size: 2rem;
     }
     
+    .hero p {
+        font-size: 1.1rem;
+    }
+    
     .products-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
     .product-actions {
         flex-direction: column;
+        gap: 0.5rem;
     }
     
-    .cart-item {
-        flex-direction: column;
-        align-items: flex-start;
+    /* Navigation improvements for small screens */
+    .nav-container {
+        padding: 0 15px;
+    }
+    
+    .logo h2 {
+        font-size: 1.3rem;
+    }
+    
+    /* Form improvements for small screens */
+    .auth-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .checkout-content {
         gap: 1rem;
     }
     
-    .cart-item-controls {
-        width: 100%;
-        justify-content: space-between;
+    .form-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Footer improvements */
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+    }
+    
+    /* About page improvements */
+    .hero-about h1 {
+        font-size: 2rem;
+    }
+    
+    .hero-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    /* Contact page improvements */
+    .contact-content {
+        gap: 1rem;
+    }
+    
+    .contact-method {
+        padding: 1rem;
+    }
+    
+    /* Admin responsive improvements */
+    .admin-body {
+        grid-template-areas: 
+            "nav"
+            "main";
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-sidebar {
+        display: none;
+    }
+    
+    /* Touch improvements */
+    .hamburger {
+        padding: 0.5rem;
+        margin: -0.5rem;
+    }
+    
+    .hamburger span {
+        width: 22px;
+        height: 2px;
     }
 }
 
