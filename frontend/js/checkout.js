@@ -173,18 +173,27 @@ async function processPayment(orderData, paymentMethod) {
         await simulatePaymentProcessing(paymentMethod);
         
         // Save order to database
-        const response = await apiRequest('/api/orders', {
+        const baseUrl = window.location.hostname === 'localhost' ? 
+            'http://localhost:3000' : 
+            window.location.origin;
+            
+        const response = await fetch(`${baseUrl}/api/orders`, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(orderData)
         });
         
-        if (response.orderId) {
+        const result = await response.json();
+        
+        if (response.ok && result.orderId) {
             // Clear cart and show success
             clearCart();
-            showOrderSuccess(response.orderId, orderData, paymentMethod);
+            showOrderSuccess(result.orderId, orderData, paymentMethod);
             updateCartCount();
         } else {
-            throw new Error('Failed to create order');
+            throw new Error(result.message || 'Failed to create order');
         }
         
     } catch (error) {

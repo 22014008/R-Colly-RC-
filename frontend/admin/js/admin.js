@@ -1,15 +1,18 @@
-// Admin panel functionality
+// Admin Panel JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    // Check admin authentication
-    checkAdminAuth();
+    // Check authentication first
+    if (!checkAdminAuth()) {
+        return;
+    }
     
     // Initialize admin panel
     initializeAdminPanel();
     
-    // Load dashboard data
-    loadDashboardStats();
+    // Load initial data
+    loadDashboardData();
 });
 
+// Authentication check
 function checkAdminAuth() {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -17,241 +20,309 @@ function checkAdminAuth() {
     if (!token || !user || !user.is_admin) {
         alert('Admin access required. Please login as admin.');
         window.location.href = '../login.html';
-        return;
+        return false;
     }
     
     // Update admin username display
-    document.getElementById('admin-username').textContent = user.username;
+    const adminUsername = document.getElementById('admin-username');
+    if (adminUsername) {
+        adminUsername.textContent = user.username;
+    }
+    
+    return true;
 }
 
+// Initialize admin panel
 function initializeAdminPanel() {
-    // Initialize section navigation
-    const menuLinks = document.querySelectorAll('.menu-link');
+    // Initialize navigation
+    initializeNavigation();
+    
+    // Initialize modals
+    initializeModals();
+    
+    // Initialize filters
+    initializeFilters();
+    
+    console.log('Admin panel initialized successfully');
+}
+
+// Navigation handling
+function initializeNavigation() {
+    const menuLinks = document.querySelectorAll('.menu-link[data-section]');
     
     menuLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            if (link.dataset.section) {
-                e.preventDefault();
-                showSection(link.dataset.section);
-                
-                // Update active menu item
-                menuLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-            }
+            e.preventDefault();
+            const section = link.dataset.section;
+            showSection(section);
+            
+            // Update active menu item
+            menuLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
         });
     });
-    
-    // Initialize forms
-    const addProductForm = document.getElementById('add-product-form');
-    if (addProductForm) {
-        addProductForm.addEventListener('submit', handleProductSubmit);
-    }
-    
-    // Initialize order status filter
-    const orderStatusFilter = document.getElementById('order-status-filter');
-    if (orderStatusFilter) {
-        orderStatusFilter.addEventListener('change', loadOrders);
-    }
 }
 
+// Show specific section
 function showSection(sectionName) {
     // Hide all sections
     document.querySelectorAll('.admin-section').forEach(section => {
         section.classList.remove('active');
     });
     
-    // Show target section
+    // Show selected section
     const targetSection = document.getElementById(sectionName);
     if (targetSection) {
         targetSection.classList.add('active');
-    }
-    
-    // Load section-specific data
-    switch (sectionName) {
-        case 'dashboard':
-            loadDashboardStats();
-            break;
-        case 'products':
-            loadProducts();
-            break;
-        case 'orders':
-            loadOrders();
-            break;
-        case 'users':
-            loadUsers();
-            break;
+        
+        // Load section-specific data
+        switch(sectionName) {
+            case 'dashboard':
+                loadDashboardData();
+                break;
+            case 'products':
+                loadProducts();
+                break;
+            case 'orders':
+                loadOrders();
+                break;
+            case 'users':
+                loadUsers();
+                break;
+        }
     }
 }
 
-async function loadDashboardStats() {
+// API helper with better error handling
+async function adminApiRequest(url, options = {}) {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+    
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        ...options
+    };
+    
     try {
-        const stats = await apiRequest('/api/admin/stats');
+        const baseUrl = window.location.hostname === 'localhost' ? 
+            'http://localhost:3000' : 
+            window.location.origin;
+            
+        const response = await fetch(`${baseUrl}${url}`, config);
         
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '../login.html';
+                return;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('API request failed:', error);
+        throw error;
+    }
+}
+
+// Load dashboard data
+async function loadDashboardData() {
+    try {
+        showLoading('dashboard');
+        
+        const stats = await adminApiRequest('/api/admin/stats');
+        
+        // Update statistics
         document.getElementById('total-sales').textContent = `R${stats.totalSales.toFixed(2)}`;
         document.getElementById('total-orders').textContent = stats.totalOrders;
         document.getElementById('low-stock-count').textContent = stats.lowStockProducts.length;
+        document.getElementById('total-users').textContent = stats.totalUsers;
         
-        // Update total users if element exists
-        const totalUsersElement = document.getElementById('total-users');
-        if (totalUsersElement) {
-            totalUsersElement.textContent = stats.totalUsers;
-        }
-        
-        // Display low stock products
-        const lowStockList = document.getElementById('low-stock-list');
-        if (stats.lowStockProducts.length === 0) {
-            lowStockList.innerHTML = '<p style="color: var(--success-color); font-weight: bold;">✅ All products are well stocked!</p>';
-        } else {
-            lowStockList.innerHTML = stats.lowStockProducts.map(product => `
-                <div class="low-stock-item ${product.stock_quantity < 5 ? 'critical' : ''}">
-                    <span><strong>${product.name}</strong></span>
-                    <span class="stock-count">${product.stock_quantity} remaining</span>
+        // Load recent orders
+        const recentOrdersList = document.getElementById('recent-orders-list');
+        if (stats.recentOrders && stats.recentOrders.length > 0) {
+            recentOrdersList.innerHTML = stats.recentOrders.map(order => `
+                <div class="recent-order-item">
+                    <div class="order-info">
+                        <strong>Order #${order.id}</strong>
+                        <span>${order.customer_name}</span>
+                    </div>
+                    <div class="order-amount">R${order.total_amount}</div>
                 </div>
             `).join('');
+        } else {
+            recentOrdersList.innerHTML = '<p>No recent orders</p>';
         }
         
-        // Display recent orders if element exists
-        const recentOrdersList = document.getElementById('recent-orders-list');
-        if (recentOrdersList && stats.recentOrders) {
-            if (stats.recentOrders.length === 0) {
-                recentOrdersList.innerHTML = '<p style="color: var(--gray-color);">No recent orders</p>';
-            } else {
-                recentOrdersList.innerHTML = stats.recentOrders.map(order => `
-                    <div class="recent-order-item">
-                        <div>
-                            <strong>Order #${order.id}</strong>
-                            <span>${order.customer_name}</span>
-                        </div>
-                        <div>
-                            <span class="order-amount">R${order.total_amount}</span>
-                            <span class="order-date">${new Date(order.created_at).toLocaleDateString()}</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
+        // Load low stock products
+        const lowStockList = document.getElementById('low-stock-list');
+        if (stats.lowStockProducts && stats.lowStockProducts.length > 0) {
+            lowStockList.innerHTML = stats.lowStockProducts.map(product => `
+                <div class="low-stock-item ${product.stock_quantity < 5 ? 'critical' : ''}">
+                    <span>${product.name}</span>
+                    <span class="stock-count">${product.stock_quantity} left</span>
+                </div>
+            `).join('');
+        } else {
+            lowStockList.innerHTML = '<p>All products are well stocked</p>';
         }
+        
+        hideLoading('dashboard');
         
     } catch (error) {
-        console.error('Failed to load dashboard stats:', error);
-        showMessage('Failed to load dashboard statistics.', 'error');
+        console.error('Failed to load dashboard data:', error);
+        hideLoading('dashboard');
+        showError('Failed to load dashboard data. Please try again.');
     }
 }
 
+// Load products
 async function loadProducts() {
-    const tableBody = document.getElementById('products-table-body');
-    
     try {
-        tableBody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr>';
+        showLoading('products');
         
-        const products = await apiRequest('/api/admin/products');
+        const products = await adminApiRequest('/api/admin/products');
+        const tbody = document.getElementById('products-table-body');
         
-        if (products.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6" class="admin-empty-state">No products found. <a href="#" onclick="showAddProductModal()">Add your first product</a></td></tr>';
-            return;
+        if (products && products.length > 0) {
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td>
+                        <img src="${product.image_url}" alt="${product.name}" class="product-image-small" onerror="this.src='/images/placeholder.jpg'">
+                    </td>
+                    <td>${product.name}</td>
+                    <td>${product.category_name || 'N/A'}</td>
+                    <td>R${product.price}</td>
+                    <td>
+                        <span class="${product.stock_quantity < 10 ? 'low-stock' : ''}">${product.stock_quantity}</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-small btn-edit" onclick="editProduct(${product.id})">Edit</button>
+                            <button class="btn btn-small btn-delete" onclick="deleteProduct(${product.id})">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No products found</td></tr>';
         }
         
-        tableBody.innerHTML = products.map(product => `
-            <tr>
-                <td>
-                    <img src="${product.image_url}" alt="${product.name}" class="product-image-small" onerror="this.src='../images/placeholder.jpg'">
-                </td>
-                <td><strong>${product.name}</strong></td>
-                <td>${product.category_name || 'Uncategorized'}</td>
-                <td>R${product.price}</td>
-                <td>
-                    <span class="${product.stock_quantity < 10 ? 'text-warning' : ''}">
-                        ${product.stock_quantity}
-                    </span>
-                </td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn btn-small btn-edit" onclick="editProduct(${product.id})">Edit</button>
-                        <button class="btn btn-small btn-delete" onclick="deleteProduct(${product.id})">Delete</button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+        hideLoading('products');
         
     } catch (error) {
         console.error('Failed to load products:', error);
-        tableBody.innerHTML = '<tr><td colspan="6" class="admin-message error">Failed to load products. Please try again.</td></tr>';
+        hideLoading('products');
+        showError('Failed to load products. Please try again.');
     }
 }
 
+// Load orders
 async function loadOrders() {
-    const tableBody = document.getElementById('orders-table-body');
-    const statusFilter = document.getElementById('order-status-filter').value;
-    
     try {
-        tableBody.innerHTML = '<tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr>';
+        showLoading('orders');
         
-        const orders = await apiRequest('/api/admin/orders');
+        const orders = await adminApiRequest('/api/admin/orders');
+        const tbody = document.getElementById('orders-table-body');
         
-        // Filter orders by status if filter is applied
-        const filteredOrders = statusFilter ? 
-            orders.filter(order => order.status === statusFilter) : 
-            orders;
-        
-        if (filteredOrders.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="7" class="admin-empty-state">No orders found.</td></tr>';
-            return;
-        }
-        
-        tableBody.innerHTML = filteredOrders.map(order => `
-            <tr>
-                <td><strong>#${order.id}</strong></td>
-                <td>${order.customer_name}</td>
-                <td>${order.customer_email}</td>
-                <td><strong>R${parseFloat(order.total_amount).toFixed(2)}</strong></td>
-                <td><span class="status-badge status-${order.status}">${order.status}</span></td>
-                <td>${new Date(order.created_at).toLocaleDateString()}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn btn-small btn-view" onclick="viewOrderDetails(${order.id})">View</button>
-                        <select onchange="updateOrderStatus(${order.id}, this.value)" class="btn-small">
-                            <option value="">Update Status</option>
+        if (orders && orders.length > 0) {
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>${order.customer_name}</td>
+                    <td>${order.customer_email}</td>
+                    <td>R${order.total_amount}</td>
+                    <td>
+                        <select class="status-select" onchange="updateOrderStatus(${order.id}, this.value)">
                             <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
                             <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
                             <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
                             <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
                         </select>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+                    </td>
+                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-small btn-view" onclick="viewOrderDetails(${order.id})">View</button>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">No orders found</td></tr>';
+        }
+        
+        hideLoading('orders');
         
     } catch (error) {
         console.error('Failed to load orders:', error);
-        tableBody.innerHTML = '<tr><td colspan="7" class="admin-message error">Failed to load orders. Please try again.</td></tr>';
+        hideLoading('orders');
+        showError('Failed to load orders. Please try again.');
     }
 }
 
-// Product Management Functions
-function showAddProductModal() {
-    const modal = document.getElementById('addProductModal');
-    const title = document.getElementById('product-modal-title');
-    const form = document.getElementById('add-product-form');
-    const submitBtn = document.getElementById('product-submit-btn');
-    
-    // Reset form and modal for adding
-    form.reset();
-    document.getElementById('edit-product-id').value = '';
-    title.textContent = 'Add New Product';
-    submitBtn.textContent = 'Add Product';
-    
-    modal.style.display = 'block';
-}
-
-function closeAddProductModal() {
-    document.getElementById('addProductModal').style.display = 'none';
-}
-
-async function editProduct(productId) {
+// Load users
+async function loadUsers() {
     try {
-        const product = await apiRequest(`/api/products/${productId}`);
+        showLoading('users');
         
-        // Fill form with product data
-        document.getElementById('edit-product-id').value = product.id;
+        const users = await adminApiRequest('/api/admin/users');
+        const tbody = document.getElementById('users-table-body');
+        
+        if (users && users.length > 0) {
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    <td>${user.order_count || 0}</td>
+                    <td>R${(user.total_spent || 0).toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-small btn-view" onclick="viewUserDetails('${user.email}')">View Orders</button>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No users found</td></tr>';
+        }
+        
+        hideLoading('users');
+        
+    } catch (error) {
+        console.error('Failed to load users:', error);
+        hideLoading('users');
+        showError('Failed to load users. Please try again.');
+    }
+}
+
+// Product management functions
+window.showAddProductModal = function() {
+    document.getElementById('product-modal-title').textContent = 'Add New Product';
+    document.getElementById('product-submit-btn').textContent = 'Add Product';
+    document.getElementById('add-product-form').reset();
+    document.getElementById('edit-product-id').value = '';
+    document.getElementById('addProductModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeAddProductModal = function() {
+    document.getElementById('addProductModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+};
+
+window.editProduct = async function(productId) {
+    try {
+        const product = await adminApiRequest(`/api/products/${productId}`);
+        
+        document.getElementById('product-modal-title').textContent = 'Edit Product';
+        document.getElementById('product-submit-btn').textContent = 'Update Product';
+        document.getElementById('edit-product-id').value = productId;
         document.getElementById('product-name').value = product.name;
         document.getElementById('product-description').value = product.description || '';
         document.getElementById('product-price').value = product.price;
@@ -259,46 +330,145 @@ async function editProduct(productId) {
         document.getElementById('product-stock').value = product.stock_quantity;
         document.getElementById('product-sizes').value = product.sizes || '';
         
-        // Update modal title and button
-        document.getElementById('product-modal-title').textContent = 'Edit Product';
-        document.getElementById('product-submit-btn').textContent = 'Update Product';
-        
-        // Show modal
         document.getElementById('addProductModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
         
     } catch (error) {
         console.error('Failed to load product for editing:', error);
-        alert('Failed to load product details.');
+        showError('Failed to load product details.');
     }
-}
+};
 
-async function deleteProduct(productId) {
-    if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+window.deleteProduct = async function(productId) {
+    if (!confirm('Are you sure you want to delete this product?')) {
         return;
     }
     
     try {
-        await apiRequest(`/api/admin/products/${productId}`, {
+        await adminApiRequest(`/api/admin/products/${productId}`, {
             method: 'DELETE'
         });
         
-        showMessage('Product deleted successfully!', 'success');
-        loadProducts(); // Reload products table
+        showSuccess('Product deleted successfully');
+        loadProducts();
         
     } catch (error) {
         console.error('Failed to delete product:', error);
-        showMessage('Failed to delete product.', 'error');
+        showError('Failed to delete product.');
     }
+};
+
+// Order management functions
+window.updateOrderStatus = async function(orderId, newStatus) {
+    try {
+        await adminApiRequest(`/api/admin/orders/${orderId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        showSuccess('Order status updated successfully');
+        loadDashboardData(); // Refresh dashboard stats
+        
+    } catch (error) {
+        console.error('Failed to update order status:', error);
+        showError('Failed to update order status.');
+    }
+};
+
+window.viewOrderDetails = async function(orderId) {
+    try {
+        const order = await adminApiRequest(`/api/admin/orders/${orderId}`);
+        
+        const modalContent = `
+            <div class="order-details">
+                <div class="order-info">
+                    <div class="order-info-section">
+                        <h4>Order Information</h4>
+                        <p><strong>Order ID:</strong> #${order.id}</p>
+                        <p><strong>Status:</strong> <span class="status-badge status-${order.status}">${order.status}</span></p>
+                        <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+                        <p><strong>Total:</strong> R${order.total_amount}</p>
+                        <p><strong>Payment Method:</strong> ${order.payment_method || 'N/A'}</p>
+                    </div>
+                    
+                    <div class="order-info-section">
+                        <h4>Customer Information</h4>
+                        <p><strong>Name:</strong> ${order.customer_name}</p>
+                        <p><strong>Email:</strong> ${order.customer_email}</p>
+                        <p><strong>Address:</strong> ${order.customer_address}</p>
+                    </div>
+                </div>
+                
+                <div class="order-items">
+                    <h4>Order Items</h4>
+                    ${order.items ? order.items.map(item => `
+                        <div class="order-item">
+                            <div class="item-info">
+                                <img src="${item.image_url}" alt="${item.name}" class="item-image" onerror="this.src='/images/placeholder.jpg'">
+                                <div>
+                                    <strong>${item.name}</strong><br>
+                                    Size: ${item.size}<br>
+                                    Quantity: ${item.quantity}
+                                </div>
+                            </div>
+                            <div class="item-price">R${(item.price * item.quantity).toFixed(2)}</div>
+                        </div>
+                    `).join('') : '<p>No items found</p>'}
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('order-details-content').innerHTML = modalContent;
+        document.getElementById('orderDetailsModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+    } catch (error) {
+        console.error('Failed to load order details:', error);
+        showError('Failed to load order details.');
+    }
+};
+
+window.closeOrderDetailsModal = function() {
+    document.getElementById('orderDetailsModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+};
+
+// Form handling
+function initializeModals() {
+    // Product form submission
+    const productForm = document.getElementById('add-product-form');
+    if (productForm) {
+        productForm.addEventListener('submit', handleProductSubmission);
+    }
+    
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+    
+    // Close modals with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const openModal = document.querySelector('.modal[style*="block"]');
+            if (openModal) {
+                openModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+    });
 }
 
-async function handleProductSubmit(e) {
+async function handleProductSubmission(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
     const productId = formData.get('productId');
-    const isEdit = !!productId;
+    const isEdit = productId && productId !== '';
     
-    const submitBtn = document.getElementById('product-submit-btn');
+    const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     
     submitBtn.disabled = true;
@@ -308,206 +478,111 @@ async function handleProductSubmit(e) {
         const url = isEdit ? `/api/admin/products/${productId}` : '/api/admin/products';
         const method = isEdit ? 'PUT' : 'POST';
         
-        await fetch(`http://localhost:3000${url}`, {
+        await adminApiRequest(url, {
             method: method,
+            body: formData,
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: formData
+            }
         });
         
+        showSuccess(isEdit ? 'Product updated successfully' : 'Product added successfully');
         closeAddProductModal();
-        showMessage(`Product ${isEdit ? 'updated' : 'added'} successfully!`, 'success');
-        loadProducts(); // Reload products table
+        loadProducts();
         
     } catch (error) {
         console.error('Failed to save product:', error);
-        showMessage(`Failed to ${isEdit ? 'update' : 'add'} product.`, 'error');
+        showError('Failed to save product. Please try again.');
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = originalText;
     }
 }
 
-// Order Management Functions
-async function viewOrderDetails(orderId) {
-    try {
-        const modal = document.getElementById('orderDetailsModal');
-        const content = document.getElementById('order-details-content');
-        
-        content.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-        modal.style.display = 'block';
-        
-        // Load actual order details
-        const orderDetails = await apiRequest(`/api/admin/orders/${orderId}`);
-        
-        content.innerHTML = `
-            <div class="order-details">
-                <div class="order-info">
-                    <div class="order-info-section">
-                        <h4>Customer Information</h4>
-                        <p><strong>Name:</strong> ${orderDetails.customer_name}</p>
-                        <p><strong>Email:</strong> ${orderDetails.customer_email}</p>
-                        <p><strong>Address:</strong></p>
-                        <p style="white-space: pre-line; margin-left: 1rem;">${orderDetails.customer_address}</p>
-                    </div>
-                    
-                    <div class="order-info-section">
-                        <h4>Order Information</h4>
-                        <p><strong>Order ID:</strong> #${orderDetails.id}</p>
-                        <p><strong>Status:</strong> <span class="status-badge status-${orderDetails.status}">${orderDetails.status}</span></p>
-                        <p><strong>Order Date:</strong> ${new Date(orderDetails.created_at).toLocaleString()}</p>
-                        <p><strong>Total Amount:</strong> <strong>R${parseFloat(orderDetails.total_amount).toFixed(2)}</strong></p>
-                    </div>
-                </div>
-                
-                <div class="order-items">
-                    <h4>Order Items</h4>
-                    ${orderDetails.items.map(item => `
-                        <div class="order-item">
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                ${item.image_url ? `<img src="${item.image_url}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">` : ''}
-                                <div>
-                                    <strong>${item.name || 'Product'}</strong>
-                                    <div style="color: var(--gray-color); font-size: 0.9rem;">Size: ${item.size} | Qty: ${item.quantity}</div>
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div>R${parseFloat(item.price).toFixed(2)} each</div>
-                                <div><strong>R${(parseFloat(item.price) * item.quantity).toFixed(2)}</strong></div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-                
-                <div class="status-update">
-                    <h4>Update Order Status</h4>
-                    <select id="order-status-update-${orderId}" class="btn-small">
-                        <option value="pending" ${orderDetails.status === 'pending' ? 'selected' : ''}>Pending</option>
-                        <option value="confirmed" ${orderDetails.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
-                        <option value="shipped" ${orderDetails.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                        <option value="delivered" ${orderDetails.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                    </select>
-                    <button class="btn btn-primary" onclick="updateOrderStatusFromModal(${orderId})">Update Status</button>
-                </div>
-            </div>
-        `;
-        
-    } catch (error) {
-        console.error('Failed to load order details:', error);
-        content.innerHTML = '<div class="admin-message error">Failed to load order details. Please try again.</div>';
-    }
-}
-
-function closeOrderDetailsModal() {
-    document.getElementById('orderDetailsModal').style.display = 'none';
-}
-
-// Update order status from modal
-window.updateOrderStatusFromModal = async function(orderId) {
-    const statusSelect = document.getElementById(`order-status-update-${orderId}`);
-    const newStatus = statusSelect.value;
-    
-    if (!newStatus) return;
-    
-    try {
-        await apiRequest(`/api/admin/orders/${orderId}`, {
-            method: 'PUT',
-            body: JSON.stringify({ status: newStatus })
+// Filter handling
+function initializeFilters() {
+    const statusFilter = document.getElementById('order-status-filter');
+    if (statusFilter) {
+        statusFilter.addEventListener('change', (e) => {
+            filterOrders(e.target.value);
         });
-        
-        showMessage('Order status updated successfully!', 'success');
-        closeOrderDetailsModal();
-        loadOrders(); // Reload orders table
-        loadDashboardStats(); // Refresh dashboard stats
-        
-    } catch (error) {
-        console.error('Failed to update order status:', error);
-        showMessage('Failed to update order status.', 'error');
-    }
-};
-
-async function updateOrderStatus(orderId, newStatus) {
-    if (!newStatus) return;
-    
-    try {
-        await apiRequest(`/api/admin/orders/${orderId}`, {
-            method: 'PUT',
-            body: JSON.stringify({ status: newStatus })
-        });
-        
-        showMessage('Order status updated successfully!', 'success');
-        loadOrders(); // Reload orders table
-        loadDashboardStats(); // Refresh dashboard stats
-        
-    } catch (error) {
-        console.error('Failed to update order status:', error);
-        showMessage('Failed to update order status.', 'error');
     }
 }
 
-async function loadUsers() {
-    const tableBody = document.getElementById('users-table-body');
+function filterOrders(status) {
+    const rows = document.querySelectorAll('#orders-table-body tr');
     
-    try {
-        tableBody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr>';
-        
-        const users = await apiRequest('/api/admin/users');
-        
-        if (users.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6" class="admin-empty-state">No registered users found.</td></tr>';
-            return;
+    rows.forEach(row => {
+        if (!status) {
+            row.style.display = '';
+        } else {
+            const statusCell = row.querySelector('.status-select');
+            if (statusCell && statusCell.value === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
         }
-        
-        tableBody.innerHTML = users.map(user => `
-            <tr>
-                <td><strong>${user.username}</strong></td>
-                <td>${user.email}</td>
-                <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                <td>${user.order_count || 0}</td>
-                <td>R${parseFloat(user.total_spent || 0).toFixed(2)}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn btn-small btn-view" onclick="viewUserOrders('${user.email}')">View Orders</button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-        
-    } catch (error) {
-        console.error('Failed to load users:', error);
-        tableBody.innerHTML = '<tr><td colspan="6" class="admin-message error">Failed to load users. Please try again.</td></tr>';
+    });
+}
+
+// Utility functions
+function showLoading(section) {
+    const container = document.querySelector(`#${section} .admin-section, #${section}`);
+    if (container) {
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'loading-overlay';
+        loadingDiv.innerHTML = '<div class="spinner"></div>';
+        container.style.position = 'relative';
+        container.appendChild(loadingDiv);
     }
 }
 
-// View user orders
-window.viewUserOrders = function(userEmail) {
-    // Switch to orders section and filter by user email
-    showSection('orders');
-    document.querySelector('[data-section="orders"]').click();
-    
-    // You could implement a user-specific filter here
-    showMessage(`Showing orders for ${userEmail}`, 'info');
-};
+function hideLoading(section) {
+    const container = document.querySelector(`#${section} .admin-section, #${section}`);
+    if (container) {
+        const loadingDiv = container.querySelector('.loading-overlay');
+        if (loadingDiv) {
+            loadingDiv.remove();
+        }
+    }
+}
 
-// Utility Functions
-function showMessage(message, type = 'info') {
-    // Create message element
+function showSuccess(message) {
+    showMessage(message, 'success');
+}
+
+function showError(message) {
+    showMessage(message, 'error');
+}
+
+function showMessage(message, type) {
+    // Remove existing messages
+    const existingMessage = document.querySelector('.admin-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // Create new message
     const messageDiv = document.createElement('div');
     messageDiv.className = `admin-message ${type}`;
     messageDiv.textContent = message;
     
     // Insert at top of main content
     const mainContent = document.querySelector('.admin-main');
-    mainContent.insertBefore(messageDiv, mainContent.firstChild);
-    
-    // Remove after 5 seconds
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 5000);
+    if (mainContent) {
+        mainContent.insertBefore(messageDiv, mainContent.firstChild);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.remove();
+            }
+        }, 5000);
+    }
 }
 
-// Global logout function
+// Logout function
 window.logout = function() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('token');
@@ -516,9 +591,7 @@ window.logout = function() {
     }
 };
 
-// Close modals when clicking outside
-window.addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal')) {
-        e.target.style.display = 'none';
-    }
-});
+// User details function
+window.viewUserDetails = function(email) {
+    alert(`User details for ${email} - Feature coming soon!`);
+};

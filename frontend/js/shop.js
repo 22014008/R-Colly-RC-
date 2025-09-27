@@ -126,12 +126,14 @@ function initializeProductModal() {
     // Close modal when clicking close button
     closeBtn.addEventListener('click', () => {
         modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
     });
     
     // Close modal when clicking outside
     window.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
     });
     
@@ -139,6 +141,7 @@ function initializeProductModal() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal.style.display === 'block') {
             modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
     });
 }

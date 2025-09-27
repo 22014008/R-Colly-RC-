@@ -70,7 +70,11 @@ async function handleLogin(e) {
     submitBtn.textContent = 'Logging in...';
     
     try {
-        const response = await fetch('http://localhost:3000/api/login', {
+        const baseUrl = window.location.hostname === 'localhost' ? 
+            'http://localhost:3000' : 
+            window.location.origin;
+            
+        const response = await fetch(`${baseUrl}/api/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -144,7 +148,11 @@ async function handleRegister(e) {
     submitBtn.textContent = 'Creating Account...';
     
     try {
-        const response = await fetch('http://localhost:3000/api/register', {
+        const baseUrl = window.location.hostname === 'localhost' ? 
+            'http://localhost:3000' : 
+            window.location.origin;
+            
+        const response = await fetch(`${baseUrl}/api/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

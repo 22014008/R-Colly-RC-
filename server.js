@@ -9,10 +9,15 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production' ? 
+        [process.env.FRONTEND_URL, 'https://*.railway.app'] : 
+        ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.static('frontend'));
 app.use('/uploads', express.static('uploads'));
@@ -20,6 +25,11 @@ app.use('/uploads', express.static('uploads'));
 // Create uploads directory if it doesn't exist
 if (!fs.existsSync('uploads')) {
     fs.mkdirSync('uploads');
+}
+
+// Create database directory if it doesn't exist
+if (!fs.existsSync('database')) {
+    fs.mkdirSync('database');
 }
 
 // Multer configuration for file uploads
@@ -34,9 +44,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Database initialization
-const dbPath = path.resolve(__dirname, 'database', 'store.db');
-const db = new sqlite3.Database(dbPath);
-
+const db = new sqlite3.Database('./database/store.db');
 
 // Initialize database tables
 db.serialize(() => {

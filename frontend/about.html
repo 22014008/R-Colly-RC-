@@ -5,6 +5,325 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us - R Colly(RC) Fashion</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .hero-about {
+            background: linear-gradient(135deg, var(--dark-color) 0%, var(--secondary-color) 50%, var(--primary-color) 100%);
+            color: white;
+            text-align: center;
+            padding: 6rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-about::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="2" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+        }
+        
+        .hero-about-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-about h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, var(--primary-color), white);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-about .tagline {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+            opacity: 0.9;
+        }
+        
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .about-content {
+            padding: 4rem 0;
+        }
+        
+        .story-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+        
+        .story-text h2 {
+            font-size: 2.5rem;
+            color: var(--text-color);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .story-text h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .story-visual {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .story-visual::before {
+            content: '👕';
+            font-size: 8rem;
+            opacity: 0.2;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .story-visual-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .values-showcase {
+            background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+            padding: 4rem 0;
+            margin: 4rem 0;
+            border-radius: 30px;
+        }
+        
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .value-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .value-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .value-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .value-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .value-card h3 {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        
+        .testimonials-section {
+            background: var(--dark-color);
+            color: white;
+            padding: 4rem 0;
+            margin: 4rem 0;
+            border-radius: 30px;
+            text-align: center;
+        }
+        
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .testimonial-card {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .testimonial-author {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .cta-section {
+            text-align: center;
+            padding: 4rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 30px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="stars" width="50" height="50" patternUnits="userSpaceOnUse"><text x="25" y="25" text-anchor="middle" fill="%23ffffff" opacity="0.1" font-size="20">✨</text></pattern></defs><rect width="100" height="100" fill="url(%23stars)"/></svg>');
+        }
+        
+        .cta-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .cta-section h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        
+        .cta-section p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .cta-btn-primary {
+            background: white;
+            color: var(--dark-color);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .cta-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .cta-btn-secondary {
+            background: transparent;
+            color: white;
+            padding: 1rem 2rem;
+            border: 2px solid white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+        
+        .cta-btn-secondary:hover {
+            background: white;
+            color: var(--dark-color);
+        }
+        
+        @media (max-width: 768px) {
+            .hero-about h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-stats {
+                gap: 2rem;
+            }
+            
+            .story-section {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-section h2 {
+                font-size: 2rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -30,65 +349,177 @@
     </nav>
 
     <main class="about-page">
+        <!-- Hero Section -->
+        <section class="hero-about">
+            <div class="container">
+                <div class="hero-about-content">
+                    <h1>R Colly(RC) Fashion</h1>
+                    <p class="tagline">Where Streetwear Meets Culture & Style Meets Soul</p>
+                    <p>Redefining fashion in South Africa, one piece at a time</p>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">5000+</span>
+                            <span class="stat-label">Happy Customers</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">Products Sold</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">3</span>
+                            <span class="stat-label">Years Experience</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">100%</span>
+                            <span class="stat-label">Satisfaction Rate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <div class="container">
-            <section class="hero-about">
-                <h1>About R Colly(RC) Fashion</h1>
-                <p>Where streetwear meets culture</p>
-            </section>
-
-            <section class="about-content">
-                <div class="about-section">
-                    <h2>Our Story</h2>
-                    <p>R Colly(RC) Fashion was born from a passion for streetwear and a vision to redefine style in South Africa. Founded in the heart of Thohoyandou, Limpopo, we've been serving the community with authentic, high-quality fashion pieces that speak to the modern urban lifestyle.</p>
-                    
-                    <p>Our brand represents the fusion of street culture, contemporary fashion, and African authenticity. Every piece in our collection is carefully selected to ensure our customers not only look good but feel confident in expressing their unique style.</p>
-                </div>
-
-                <div class="about-section">
-                    <h2>Our Mission</h2>
-                    <p>To provide accessible, high-quality streetwear that empowers individuals to express their personal style while staying connected to their cultural roots. We believe fashion is more than just clothing – it's a form of self-expression and cultural identity.</p>
-                </div>
-
-                <div class="values-grid">
-                    <div class="value-card">
-                        <h3>Quality</h3>
-                        <p>We source only the finest materials and work with trusted suppliers to ensure every product meets our high standards of quality and durability.</p>
+            <div class="about-content">
+                <!-- Story Section -->
+                <section class="story-section">
+                    <div class="story-text">
+                        <h2>Our Story</h2>
+                        <p>Born in the vibrant streets of Thohoyandou, Limpopo, R Colly(RC) Fashion emerged from a simple yet powerful vision: to bring authentic streetwear culture to South Africa while celebrating our rich African heritage.</p>
+                        
+                        <p>What started as a passion project has evolved into a movement that bridges the gap between global fashion trends and local cultural identity. We believe that clothing is more than fabric – it's a statement, a culture, and a way of life.</p>
+                        
+                        <p>Every piece in our collection tells a story of craftsmanship, authenticity, and the relentless pursuit of style that speaks to the modern African youth.</p>
                     </div>
                     
-                    <div class="value-card">
-                        <h3>Authenticity</h3>
-                        <p>Our designs reflect genuine streetwear culture while incorporating elements that celebrate our African heritage and local community.</p>
+                    <div class="story-visual">
+                        <div class="story-visual-content">
+                            <h3>From Vision to Reality</h3>
+                            <p>Transforming streetwear dreams into tangible fashion statements that resonate with our community and beyond.</p>
+                            <div style="margin-top: 2rem;">
+                                <strong>Est. 2021 • Thohoyandou, Limpopo</strong>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="value-card">
-                        <h3>Customer Satisfaction</h3>
-                        <p>Your satisfaction is our priority. We provide excellent customer service and stand behind every product we sell with reliable support.</p>
-                    </div>
-                    
-                    <div class="value-card">
-                        <h3>Community</h3>
-                        <p>As a locally-owned business, we're committed to supporting our community and contributing to the growth of local fashion culture.</p>
-                    </div>
-                </div>
+                </section>
 
-                <div class="about-section">
-                    <h2>Why Choose R Colly(RC)?</h2>
-                    <ul class="benefits-list">
-                        <li>Premium quality streetwear at affordable prices</li>
-                        <li>Unique designs that blend global trends with local culture</li>
-                        <li>Fast and reliable delivery across South Africa</li>
-                        <li>Exceptional customer service and support</li>
-                        <li>Easy returns and exchanges</li>
-                        <li>Regular new arrivals and exclusive collections</li>
-                    </ul>
-                </div>
+                <!-- Values Section -->
+                <section class="values-showcase">
+                    <div class="container">
+                        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 1rem;">What Drives Us</h2>
+                        <p style="text-align: center; font-size: 1.2rem; color: var(--gray-color); margin-bottom: 2rem;">The core values that shape every decision we make</p>
+                        
+                        <div class="values-grid">
+                            <div class="value-card">
+                                <span class="value-icon">👑</span>
+                                <h3>Premium Quality</h3>
+                                <p>We source only the finest materials and work with trusted suppliers to ensure every product exceeds expectations. Quality isn't just a promise – it's our guarantee.</p>
+                            </div>
+                            
+                            <div class="value-card">
+                                <span class="value-icon">🎨</span>
+                                <h3>Authentic Design</h3>
+                                <p>Our designs reflect genuine streetwear culture while incorporating elements that celebrate African heritage. Every piece is a fusion of global trends and local soul.</p>
+                            </div>
+                            
+                            <div class="value-card">
+                                <span class="value-icon">🤝</span>
+                                <h3>Customer First</h3>
+                                <p>Your satisfaction drives everything we do. From personalized service to hassle-free returns, we're committed to making your experience exceptional.</p>
+                            </div>
+                            
+                            <div class="value-card">
+                                <span class="value-icon">🌍</span>
+                                <h3>Community Impact</h3>
+                                <p>As a proudly South African brand, we're committed to supporting our local community and contributing to the growth of African fashion culture.</p>
+                            </div>
+                            
+                            <div class="value-card">
+                                <span class="value-icon">⚡</span>
+                                <h3>Innovation</h3>
+                                <p>We constantly evolve our designs, technology, and service to stay ahead of trends while maintaining our authentic streetwear roots.</p>
+                            </div>
+                            
+                            <div class="value-card">
+                                <span class="value-icon">💚</span>
+                                <h3>Sustainability</h3>
+                                <p>We're committed to responsible fashion practices, from ethical sourcing to sustainable packaging, because style shouldn't cost the earth.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-                <div class="cta-section">
-                    <h2>Ready to Redefine Your Style?</h2>
-                    <p>Join thousands of satisfied customers who have made R Colly(RC) their go-to destination for streetwear fashion.</p>
-                    <a href="shop.html" class="cta-btn">Shop Now</a>
-                </div>
-            </section>
+                <!-- Testimonials Section -->
+                <section class="testimonials-section">
+                    <div class="container">
+                        <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">What Our Customers Say</h2>
+                        <p style="font-size: 1.2rem; opacity: 0.8;">Real feedback from real customers who love R Colly(RC)</p>
+                        
+                        <div class="testimonials-grid">
+                            <div class="testimonial-card">
+                                <p class="testimonial-text">"The quality is incredible! I've been wearing my R Colly hoodie for months and it still looks brand new. Definitely my go-to brand for streetwear."</p>
+                                <p class="testimonial-author">- Thabo M., Johannesburg</p>
+                            </div>
+                            
+                            <div class="testimonial-card">
+                                <p class="testimonial-text">"Fast delivery, great customer service, and the clothes fit perfectly. R Colly(RC) has become my favorite online store!"</p>
+                                <p class="testimonial-author">- Nomsa K., Cape Town</p>
+                            </div>
+                            
+                            <div class="testimonial-card">
+                                <p class="testimonial-text">"Love how they blend international streetwear trends with African culture. The designs are unique and the quality is top-notch."</p>
+                                <p class="testimonial-author">- Michael R., Durban</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Why Choose Us Section -->
+                <section style="margin: 4rem 0;">
+                    <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem;">Why Choose R Colly(RC)?</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                        <div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🚚</div>
+                            <h4>Fast & Free Delivery</h4>
+                            <p>Free delivery across South Africa on orders over R500. Express delivery available for urgent orders.</p>
+                        </div>
+                        
+                        <div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🔄</div>
+                            <h4>Easy Returns</h4>
+                            <p>Not satisfied? Return any item within 30 days for a full refund or exchange. No questions asked.</p>
+                        </div>
+                        
+                        <div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">💬</div>
+                            <h4>24/7 Support</h4>
+                            <p>Our customer support team is always ready to help via WhatsApp, email, or phone. We're here for you!</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Call to Action Section -->
+                <section class="cta-section">
+                    <div class="cta-content">
+                        <h2>Ready to Elevate Your Style?</h2>
+                        <p>Join thousands of satisfied customers who have made R Colly(RC) their go-to destination for premium streetwear fashion.</p>
+                        
+                        <div class="cta-buttons">
+                            <a href="shop.html" class="cta-btn-primary">Shop Collection</a>
+                            <a href="contact.html" class="cta-btn-secondary">Get in Touch</a>
+                        </div>
+                        
+                        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.2);">
+                            <p style="margin: 0; font-size: 1.1rem;">
+                                🏪 <strong>Visit Our Store:</strong> Plaza Taxi rank St, Thohoyandou, 0950<br>
+                                📞 <strong>Call Us:</strong> +27793757047<br>
+                                📧 <strong>Email:</strong> rcollyfashion@gmail.com
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
     </main>
 
@@ -108,6 +539,15 @@
                     <p>Plaza Taxi rank St, Thohoyandou, 0950</p>
                     <p>Limpopo, South Africa</p>
                     <p>Open: Mon–Sat, 9am–6pm</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="shop.html">Shop</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="admin/index.html">Admin</a></li>
+                    </ul>
                 </div>
             </div>
         </div>

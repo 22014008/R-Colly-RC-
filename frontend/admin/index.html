@@ -183,7 +183,7 @@
 
     <!-- Add Product Modal -->
     <div id="addProductModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content admin-modal">
             <span class="close" onclick="closeAddProductModal()">&times;</span>
             <h2 id="product-modal-title">Add New Product</h2>
             <form id="add-product-form" enctype="multipart/form-data">
@@ -196,7 +196,7 @@
                 
                 <div class="form-group">
                     <label for="product-description">Description</label>
-                    <textarea id="product-description" name="description" rows="4"></textarea>
+                    <textarea id="product-description" name="description" rows="3"></textarea>
                 </div>
                 
                 <div class="form-row">
@@ -232,7 +232,7 @@
                 <div class="form-group">
                     <label for="product-image">Product Image</label>
                     <input type="file" id="product-image" name="image" accept="image/*">
-                    <small>Leave empty to keep current image when editing</small>
+                    <small>Leave empty to keep current image when editing. Max size: 5MB</small>
                 </div>
                 
                 <div class="form-actions">

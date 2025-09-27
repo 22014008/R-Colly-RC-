@@ -368,7 +368,59 @@
 
 /* Modal Adjustments for Admin */
 .modal-content {
-    max-width: 800px;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 1% auto;
+    padding: 1.5rem;
+}
+
+.modal {
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Compact form layout */
+.admin-modal .form-group {
+    margin-bottom: 0.6rem;
+}
+
+.admin-modal .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+}
+
+.admin-modal input,
+.admin-modal textarea,
+.admin-modal select {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.admin-modal textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.admin-modal .form-actions {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+}
+
+.admin-modal h2 {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.admin-modal label {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+}
+
+.admin-modal small {
+    font-size: 0.75rem;
 }
 
 /* Order Details */
@@ -494,6 +546,16 @@
     
     .action-buttons {
         flex-direction: column;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 1% auto;
+        padding: 1rem;
+    }
+    
+    .admin-modal .form-row {
+        grid-template-columns: 1fr;
     }
 }
 
