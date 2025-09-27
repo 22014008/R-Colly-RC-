@@ -519,12 +519,27 @@
         display: none;
     }
     
+    .admin-nav-container {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .admin-user-info {
+        justify-content: center;
+    }
+    
     .admin-main {
         padding: 1rem;
     }
     
     .dashboard-stats {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1.5rem;
     }
     
     .dashboard-grid {
@@ -537,25 +552,71 @@
     
     .admin-table {
         font-size: 0.8rem;
+        overflow-x: auto;
+        display: block;
+        white-space: nowrap;
     }
     
     .admin-table th,
     .admin-table td {
         padding: 0.5rem;
+        min-width: 100px;
     }
     
     .action-buttons {
         flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .btn-small {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        width: 100%;
     }
     
     .modal-content {
         width: 95%;
         margin: 1% auto;
         padding: 1rem;
+        max-height: 95vh;
+        overflow-y: auto;
     }
     
     .admin-modal .form-row {
         grid-template-columns: 1fr;
+    }
+    
+    /* Mobile navigation for admin */
+    .section-header {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .section-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    /* Touch-friendly buttons */
+    .logout-btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Order details modal improvements */
+    .order-info {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .order-items {
+        padding: 1rem;
+    }
+    
+    .order-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.8rem 0;
     }
 }
 
