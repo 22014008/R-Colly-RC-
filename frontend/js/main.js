@@ -22,7 +22,21 @@ function initializeNavigation() {
     
     if (hamburger) {
         hamburger.addEventListener('click', () => {
+            // Close user menu if open
+            const userMenu = document.querySelector('.user-menu');
+            if (userMenu) {
+                userMenu.remove();
+            }
+            
+            // Toggle mobile menu
             navMenu.classList.toggle('active');
+            
+            // Prevent body scroll when menu is open
+            if (navMenu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
         });
     }
     
@@ -30,7 +44,26 @@ function initializeNavigation() {
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', () => {
             navMenu.classList.remove('active');
+            document.body.style.overflow = 'auto';
         });
+    });
+    
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (navMenu && navMenu.classList.contains('active')) {
+            if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                navMenu.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            navMenu.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
     });
 }
 
@@ -52,40 +85,79 @@ function updateAuthState() {
 
 function showUserMenu() {
     const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const authLink = document.getElementById('auth-link');
     
-    const menu = `
-        <div style="position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1001;">
-            ${user.is_admin ? '<a href="admin/index.html" style="display: block; padding: 0.5rem 0; color: #333; text-decoration: none;">Admin Panel</a>' : ''}
-            <a href="#" onclick="logout()" style="display: block; padding: 0.5rem 0; color: #333; text-decoration: none;">Logout</a>
-        </div>
-    `;
+    if (!authLink) return;
     
-    // Remove existing menu
+    // Remove existing menu first
     const existingMenu = document.querySelector('.user-menu');
     if (existingMenu) {
         existingMenu.remove();
+        return; // Toggle behavior - if menu exists, just close it
     }
     
-    // Add new menu
-    const authLink = document.getElementById('auth-link');
-    authLink.style.position = 'relative';
-    authLink.insertAdjacentHTML('afterend', `<div class="user-menu">${menu}</div>`);
+    // Create menu HTML
+    const menuHTML = `
+        <div class="user-menu">
+            ${user && user.is_admin ? '<a href="admin/index.html">👑 Admin Panel</a>' : ''}
+            <a href="#" onclick="logout(); return false;">🚪 Logout</a>
+        </div>
+    `;
     
-    // Close menu when clicking outside
+    // Set relative positioning for auth link
+    authLink.style.position = 'relative';
+    
+    // Insert menu
+    authLink.insertAdjacentHTML('afterend', menuHTML);
+    
+    // Close menu when clicking outside (with delay to prevent immediate closing)
     setTimeout(() => {
         document.addEventListener('click', function closeMenu(e) {
-            if (!e.target.closest('.user-menu') && !e.target.closest('#auth-link')) {
-                const menu = document.querySelector('.user-menu');
-                if (menu) menu.remove();
+            const menu = document.querySelector('.user-menu');
+            const authLink = document.getElementById('auth-link');
+            
+            if (menu && !menu.contains(e.target) && !authLink.contains(e.target)) {
+                menu.remove();
                 document.removeEventListener('click', closeMenu);
             }
         });
+        
+        // Also close menu when mobile nav is toggled
+        const hamburger = document.querySelector('.hamburger');
+        if (hamburger) {
+            hamburger.addEventListener('click', function closeMobileMenu() {
+                const menu = document.querySelector('.user-menu');
+                if (menu) {
+                    menu.remove();
+                }
+                hamburger.removeEventListener('click', closeMobileMenu);
+            });
+        }
     }, 100);
 }
 
 function logout() {
+    // Close any open menus
+    const userMenu = document.querySelector('.user-menu');
+    if (userMenu) {
+        userMenu.remove();
+    }
+    
+    // Close mobile menu if open
+    const navMenu = document.querySelector('.nav-menu');
+    if (navMenu) {
+        navMenu.classList.remove('active');
+    }
+    
+    // Clear storage and redirect
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('cart'); // Optional: clear cart on logout
+    
+    // Show logout confirmation
+    alert('You have been logged out successfully!');
+    
+    // Redirect to home page
     window.location.href = 'index.html';
 }
 
